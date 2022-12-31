@@ -9,7 +9,7 @@ problems with the Grado GW100X, like the poor battery life, annoying loud status
 * 4x M2x3x3.5 heat-set threaded inserts
 * 2x M2x8mm screws
 * 2x M2x4mm screws
-* Pencil eraser (optional)
+* The eraser thing on the end of a pencil (optional)
 
 You will also need equipment.
 * 3D printer
