@@ -1,4 +1,6 @@
 # Grado GW100X Replacement Headband Attachment
+<img width="507" alt="Screenshot 2023-05-09 at 12 04 25 am" src="https://user-images.githubusercontent.com/6789217/236845109-add544b8-ac1f-44aa-b9a4-a666c47dcb57.png">
+
 This 3D print allows you to replace the piece of plastic attaching the headband of the Grado GW100X to the stem holding the ear cups. 
 This could be useful if, for example, it broke and Grado refused to service the product, even for money. This will not fix other
 problems with the Grado GW100X, like the poor battery life, annoying loud status voice, or the fact the power button keeps breaking.
