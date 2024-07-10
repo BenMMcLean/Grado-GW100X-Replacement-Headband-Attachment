@@ -1,0 +1,114 @@
+amends "package://github.com/BenMMcLean/pkl-github-actions/releases/download/v0.1.0-alpha.60/pkl-github-actions@0.1.0-alpha.60#/actions.pkl"
+import "package://components.emilym.cl/actions/actions@0.1.1#/common/common.pkl" as common
+
+name = "Build"
+
+on = new On {
+    push = new Push {
+        branches = new Listing {
+            "main"
+            "develop"
+            "release/**"
+        }
+    }
+    pull_request = new PullRequest {
+        branches = new Listing {
+            "main"
+            "develop"
+        }
+    }
+}
+
+permissions = new Mapping {
+    ["contents"] = "write"
+}
+
+jobs = new Mapping {
+    ["version"] = new Job {
+        outputs = new Mapping {
+            ["version"] = "${{ steps.gitversion.outputs.semVer }}"
+        }
+        steps = new Listing {
+            common.checkout
+            new ActionStep {
+                name = "Install GitVersion"
+                uses = "gittools/actions/gitversion/setup@v0.9.6"
+                with = new Mapping {
+                    ["versionSpec"] = "5.x"
+                }
+            }
+            new ActionStep {
+                name = "Use GitVersion"
+                id = "gitversion"
+                uses = "gittools/actions/gitversion/execute@v0.9.6"
+                with = new Mapping {
+                    ["useConfigFile"] = true
+                    ["configFilePath"] = "./gitversion.yml"
+                }
+            }
+        }
+    }
+    ["build"] = new Job {
+        steps = new Listing {
+            common.checkout
+            new ActionStep {
+                uses = "benmmclean/openscad-build-action@v1"
+                with = new Mapping {
+                    ["input-file"] = "headphone_mount.scad"
+                    ["output-file"] = "headphone_mount.stl"
+                }
+            }
+            new ActionStep {
+                uses = "actions/upload-artifact@master"
+                with = new Mapping {
+                    ["name"] = "model-stl"
+                    ["path"] = "./headphone_mount.stl"
+                }
+            }
+        }
+    }
+    ["release"] = new Job {
+        needs = new Listing {
+            "version"
+        }
+        `if` = "github.event_name != 'pull_request'"
+        permissions = new Mapping {
+            ["contents"] = "write"
+        }
+        outputs = new Mapping {
+            ["upload_url"] = "${{ steps.create_release.outputs.upload_url }}"
+        }
+        steps = new Listing {
+            common.checkout
+            common.create_release
+        }
+    }
+    ["publish-to-release"] = new Job {
+        needs = new Listing {
+            "release"
+            "build"
+        }
+        steps = new Listing {
+            new ActionStep {
+                uses = "actions/download-artifact@master"
+                with = new Mapping {
+                    ["name"] = "model-stl"
+                    ["path"] = "./"
+                }
+            }
+            new ActionStep {
+                name = "Upload Artifact to Release"
+                uses = "actions/upload-release-asset@v1"
+                env = new Mapping {
+                    ["GITHUB_TOKEN"] = "${{ secrets.GITHUB_TOKEN }}"
+                }
+                with = new Mapping {
+                    ["upload_url"] = "${{ needs.release.outputs.upload_url }}"
+                    ["asset_path"] = "./headphone_mount.stl"
+                    ["asset_name"] = "headphone_mount.stl"
+                    ["asset_content_type"] = "application/zip"
+                }
+            }
+        }
+    }
+}
