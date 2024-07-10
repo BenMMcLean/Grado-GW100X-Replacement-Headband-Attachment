@@ -52,7 +52,7 @@ jobs = new Mapping {
         steps = new Listing {
             common.checkout
             new ActionStep {
-                uses = "pkoehlers/openscad-build-action@v1"
+                uses = "benmmclean/openscad-build-action@v1"
                 with = new Mapping {
                     ["input-file"] = "headphone_mount.scad"
                     ["output-file"] = "headphone_mount.stl"
